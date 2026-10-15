@@ -75,29 +75,38 @@ ${observacoes}
     });
   };
 
-  async function gerarPDF() {
+ async function gerarPDF() {
     const doc = new jsPDF();
 
-    // 1. Tentar carregar a logo da pasta /public
-    const logoData = await carregarImagem("/logo_empresa.png");
+    // 1. Tentar carregar a logo a partir da pasta /public/logo.png
+    const carregarLogo = () => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = "/logo_empresa.png";
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+      });
+    };
 
-    if (logoData) {
-      // Adiciona a Logo (x, y, largura, altura)
-      doc.addImage(logoData, "PNG", 10, 10, 35, 25);
+    const imgLogo = await carregarLogo();
+
+    if (imgLogo) {
+      // Desenha a imagem no PDF: addImage(imagem, formato, x, y, largura, altura)
+      doc.addImage(imgLogo, "PNG", 10, 10, 32, 28);
     }
 
     // 2. Cabeçalho com Dados da Empresa e Telefone
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("VR RESERVATÓRIOS", 50, 18);
+    doc.text("VR RESERVATÓRIOS", 48, 18);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    doc.text("CNPJ: 13.343.741/0001-90", 50, 24);
-    doc.text("R. João Ifanger Júnior, 138 - Indaiatuba/SP", 50, 29);
+    doc.text("CNPJ: 13.343.741/0001-90", 48, 24);
+    doc.text("R. João Ifanger Júnior, 138 - Indaiatuba/SP", 48, 29);
     
     doc.setFont("helvetica", "bold");
-    doc.text("Telefone / WhatsApp: (19) 98986-9948", 50, 34);
+    doc.text("Telefone / WhatsApp: (19) 98986-9948", 48, 34);
 
     // Linha Divisória
     doc.setLineWidth(0.5);
