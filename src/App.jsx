@@ -79,7 +79,7 @@ ${observacoes}
     const doc = new jsPDF();
 
     // 1. Tentar carregar a logo da pasta /public
-    const logoData = await carregarImagem("/logo.png");
+    const logoData = await carregarImagem("/logo_empresa.png");
 
     if (logoData) {
       // Adiciona a Logo (x, y, largura, altura)
