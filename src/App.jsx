@@ -57,19 +57,82 @@ ${observacoes}
     alert("Orçamento copiado!");
   }
 
-  function gerarPDF() {
+  // Função para carregar a imagem e converter em Base64 para o jsPDF
+  const carregarImagem = (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = url;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(null);
+    });
+  };
+
+  async function gerarPDF() {
     const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text("ORÇAMENTO - VR RESERVATÓRIOS", 10, 20);
+    // 1. Tentar carregar a logo da pasta /public
+    const logoData = await carregarImagem("/logo.png");
 
-    doc.setFontSize(12);
+    if (logoData) {
+      // Adiciona a Logo (x, y, largura, altura)
+      doc.addImage(logoData, "PNG", 10, 10, 35, 25);
+    }
 
-    const linhas = doc.splitTextToSize(textoOrcamento, 180);
+    // 2. Cabeçalho com Dados da Empresa e Telefone
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("VR RESERVATÓRIOS", 50, 18);
 
-    doc.text(linhas, 10, 40);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("CNPJ: 13.343.741/0001-90", 50, 24);
+    doc.text("R. João Ifanger Júnior, 138 - Indaiatuba/SP", 50, 29);
+    
+    doc.setFont("helvetica", "bold");
+    doc.text("Telefone / WhatsApp: (19) 98986-9948", 50, 34);
 
-    doc.save("orcamento.pdf");
+    // Linha Divisória
+    doc.setLineWidth(0.5);
+    doc.line(10, 42, 200, 42);
+
+    // 3. Título do Orçamento
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(`ORÇAMENTO DE SERVIÇOS`, 10, 52);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Data: ${hoje}`, 160, 52);
+
+    // 4. Corpo do Orçamento
+    const conteudoFormatado = `
+CLIENTE: ${cliente}
+TELEFONE CLIENTE: ${telefone}
+ENDEREÇO: ${endereco}
+
+SERVIÇO: ${servico}
+CAPACIDADE: ${capacidade}
+QUANTIDADE: ${quantidade}
+VALOR UNITÁRIO: R$ ${valorUnitario}
+
+VALOR TOTAL: ${totalFormatado}
+
+OBSERVAÇÕES:
+${observacoes}
+`;
+
+    const linhas = doc.splitTextToSize(conteudoFormatado, 180);
+    doc.text(linhas, 10, 62);
+
+    // Salvar arquivo
+    doc.save(`orcamento_${cliente.replace(/\s+/g, "_") || "vr"}.pdf`);
   }
 
   return (
@@ -144,13 +207,9 @@ ${observacoes}
                   onChange={(e) => setServico(e.target.value)}
                 >
                   <option value="">Selecione o Serviço</option>
-
                   <option>Limpeza de caixa d'água</option>
-
                   <option>Limpeza de reservatório metálico</option>
-
                   <option>Reforma de reservatório metálico</option>
-
                   <option>Limpeza de poço caipira</option>
                 </select>
               </div>
