@@ -102,7 +102,7 @@ ${observacoes}
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    doc.text("CNPJ: 13.343.741/0001-90", 48, 24);
+    doc.text("CNPJ: 66.047.086/0001-16", 48, 24);
     doc.text("R. João Ifanger Júnior, 138 - Indaiatuba/SP", 48, 29);
     
     doc.setFont("helvetica", "bold");
